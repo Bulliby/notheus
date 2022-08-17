@@ -21,3 +21,4 @@
 
 docker/mysql-data
 docker/.env
+tags
