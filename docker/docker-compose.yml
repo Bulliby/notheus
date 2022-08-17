@@ -1,0 +1,22 @@
+name: projects
+services:
+  server:
+    image: "waxer/php8.1:symfony"
+    ports:
+      - "127.0.0.1:23004:80"
+    volumes:
+      - "/home/waxer/dev/PHP/projects:/srv/http/"
+  mysql:
+    image: "mysql"
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_HOST=localhost
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    depends_on:
+      - server
+    ports:
+      - "127.0.0.1:23005:3306"
+    volumes:
+      - "/home/waxer/dev/PHP/projects/docker/mysql-data:/var/lib/mysql"
