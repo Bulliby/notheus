@@ -20,3 +20,9 @@ services:
       - "127.0.0.1:23005:3306"
     volumes:
       - "/home/waxer/dev/PHP/projects/docker/mysql-data:/var/lib/mysql"
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - 8081:80
+    environment:
+      - PMA_HOST=mysql
