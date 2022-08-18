@@ -7,12 +7,15 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Component\Serializer\Annotation\Ignore;
+
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 class Project
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Ignore]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -29,6 +32,10 @@ class Project
 
     #[ORM\ManyToOne(inversedBy: 'project')]
     private ?ProjectGroup $projectGroup = null;
+
+    #[ORM\ManyToOne(inversedBy: 'projects')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?ProjectList $projectList = null;
 
     public function __construct()
     {
@@ -114,6 +121,18 @@ class Project
     public function setProjectGroup(?ProjectGroup $projectGroup): self
     {
         $this->projectGroup = $projectGroup;
+
+        return $this;
+    }
+
+    public function getProjectList(): ?ProjectList
+    {
+        return $this->projectList;
+    }
+
+    public function setProjectList(?ProjectList $projectList): self
+    {
+        $this->projectList = $projectList;
 
         return $this;
     }

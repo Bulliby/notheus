@@ -6,6 +6,8 @@ use App\Repository\ProjectDetailRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Component\Serializer\Annotation\Ignore;
+
 #[ORM\Entity(repositoryClass: ProjectDetailRepository::class)]
 class ProjectDetail
 {

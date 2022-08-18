@@ -2,31 +2,39 @@
 
 namespace App\Entity;
 
-use App\Repository\ProjectGroupRepository;
+use App\Repository\ProjectListRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Ignore;
 
-#[ORM\Entity(repositoryClass: ProjectGroupRepository::class)]
-class ProjectGroup
+#[ORM\Entity(repositoryClass: ProjectListRepository::class)]
+class ProjectList
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /**
+     * NOTE si il y a un setId() alors le deserializeur peuplera l'id
+     * ce qui peut engendrer des problèmes de securités. Mieux vaut 
+     * d'office le désactiver.
+     */
     #[Ignore]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private ?string $name = null;
 
-    #[ORM\OneToMany(mappedBy: 'projectGroup', targetEntity: Project::class)]
-    private Collection $project;
+    #[ORM\OneToMany(mappedBy: 'projectList', targetEntity: Project::class)]
+    private Collection $projects;
 
     public function __construct()
     {
-        $this->project = new ArrayCollection();
+        $this->projects = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -49,16 +57,16 @@ class ProjectGroup
     /**
      * @return Collection<int, Project>
      */
-    public function getProject(): Collection
+    public function getProjects(): Collection
     {
-        return $this->project;
+        return $this->projects;
     }
 
     public function addProject(Project $project): self
     {
-        if (!$this->project->contains($project)) {
-            $this->project->add($project);
-            $project->setProjectGroup($this);
+        if (!$this->projects->contains($project)) {
+            $this->projects->add($project);
+            $project->setProjectList($this);
         }
 
         return $this;
@@ -66,10 +74,10 @@ class ProjectGroup
 
     public function removeProject(Project $project): self
     {
-        if ($this->project->removeElement($project)) {
+        if ($this->projects->removeElement($project)) {
             // set the owning side to null (unless already changed)
-            if ($project->getProjectGroup() === $this) {
-                $project->setProjectGroup(null);
+            if ($project->getProjectList() === $this) {
+                $project->setProjectList(null);
             }
         }
 
