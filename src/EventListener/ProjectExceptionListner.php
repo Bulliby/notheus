@@ -6,11 +6,13 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 use App\Exception\CustomValidationException;
+use App\Exception\CustomNotFoundException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Psr\Log\LoggerInterface;
+use App\Interface\CustomExceptionInterface;
 
 #[AsEventListener]
-final class ValidationExceptionListner
+final class ProjectExceptionListner
 {
     private $logger;
 
@@ -28,11 +30,16 @@ final class ValidationExceptionListner
       		$response = $this->handleApiException($event, $exception);
 			$event->setResponse($response);
 		}
+		if ($exception instanceof CustomNotFoundException) 
+        {
+      		$response = $this->handleApiException($event, $exception);
+			$event->setResponse($response);
+        }
     }
 	
 	private function handleApiException(
 		ExceptionEvent $event,
-		CustomValidationException $exception
+		CustomExceptionInterface $exception
 	): JsonResponse
 	{
 		$ip = $event->getRequest()->getClientIp();

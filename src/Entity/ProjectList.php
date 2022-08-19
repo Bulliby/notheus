@@ -21,7 +21,6 @@ class ProjectList
      * ce qui peut engendrer des problèmes de securités. Mieux vaut 
      * d'office le désactiver.
      */
-    #[Ignore]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -40,6 +39,13 @@ class ProjectList
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId(int $id): self
+    {
+        $this->id = $id; 
+
+        return $this;
     }
 
     public function getName(): ?string
