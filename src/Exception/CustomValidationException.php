@@ -2,6 +2,8 @@
 
 namespace App\Exception;
 
-class CustomValidationException extends \Exception
+use App\Interface\CustomExceptionInterface;
+
+class CustomValidationException extends \Exception implements CustomExceptionInterface
 {
 }

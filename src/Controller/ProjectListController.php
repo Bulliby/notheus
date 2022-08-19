@@ -14,22 +14,33 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use App\Exception\CustomValidationException;
+use App\Exception\CustomNotFoundException;
+use App\Service\ErrorMessages;
+use App\Interface\SerializationContextInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
+//TODO CSRF Token
 #[Route('/project/list')]
 class ProjectListController extends AbstractController
 {
-    #[Route('/', name: 'app_project_list_index', methods: ['GET'])]
-    public function index(ProjectListRepository $projectListRepository): Response
+    private $_sc;
+    private $_pr;
+
+    public function __construct(SerializationContextInterface $sc, ProjectListRepository $pr)
     {
-        return $this->json(
-            $projectListRepository->findAll(),
-        );
+        $this->_sc = $sc; 
+        $this->_pr = $pr; 
+    }
+
+    #[Route('/', name: 'app_project_list_index', methods: ['GET'])]
+    public function index(): Response
+    {
+        return $this->json($this->_pr->findAll(), 200);
     }
 
     #[Route('/add', name: 'app_project_list_new', methods: ['POST'])]
     public function add(
         Request $request, 
-        ProjectListRepository $projectListRepository,
         SerializerInterface $s,
         ValidatorInterface $validator
     ): Response
@@ -39,10 +50,12 @@ class ProjectListController extends AbstractController
         $errors = $validator->validate($list);
 
 		if (count($errors) > 0) {
-			throw new CustomValidationException((string)$errors);
+            throw new CustomValidationException(
+                ErrorMessages::validationMessage($errors)
+            );
     	}
 
-        $projectListRepository->add($list, true);
+        $this->_pr->add($list, true);
 
 		return $this->json("Ok", 201);
     }
@@ -50,40 +63,74 @@ class ProjectListController extends AbstractController
     #[Route('/{id}', name: 'app_project_list_show', methods: ['GET'])]
     public function show(
         int $id,
-        ProjectListRepository $projectListRepository,
     ): Response
     {
-        if (($projectList = $projectListRepository->find($id)) == null) 
-			throw new CustomValidationException("Not found, try to fetch id : $id from ". get_class($this));
+        if (($projectList = $this->_pr->find($id)) == null) 
+        {
+            throw new CustomNotFoundException(
+                ErrorMessages::entityNoFound(
+                    $id, $this->_pr->getClassName()
+                )
+            );
+        }
 
-		return $this->json($projectList, 200);
+		return $this->json($projectList, 200, [], $this->_sc->getContext());
     }
 
-    /* #[Route('/{id}/edit', name: 'app_project_list_edit', methods: ['GET', 'POST'])] */
-    /* public function edit(Request $request, ProjectList $projectList, ProjectListRepository $projectListRepository): Response */
-    /* { */
-    /*     $form = $this->createForm(ProjectListType::class, $projectList); */
-    /*     $form->handleRequest($request); */
+    #[Route('/{id}/edit', name: 'app_project_list_edit', methods: ['POST'])]
+    public function edit(
+        int $id, 
+        Request $request, 
+        ProjectListRepository $pr,
+        SerializerInterface $s,
+        ValidatorInterface $v
+    ): Response
+    {
+        if (($projectList = $pr->find($id)) == null) 
+        {
+            throw new CustomNotFoundException(
+                ErrorMessages::entityNoFound(
+                    $id, $pr->getClassName()
+                )
+            );
+        }
 
-    /*     if ($form->isSubmitted() && $form->isValid()) { */
-    /*         $projectListRepository->add($projectList, true); */
+        $this->_sc->addObjectToPopulate($projectList);
 
-    /*         return $this->redirectToRoute('app_project_list_index', [], Response::HTTP_SEE_OTHER); */
-    /*     } */
+        $s->deserialize(
+            $request->getContent(),
+            ProjectList::class, 
+            'json', 
+            $this->_sc->getContext()
+        );
 
-    /*     return $this->renderForm('project_list/edit.html.twig', [ */
-    /*         'project_list' => $projectList, */
-    /*         'form' => $form, */
-    /*     ]); */
-    /* } */
+        $errors = $v->validate($projectList);
+        
+		if (count($errors) > 0) {
+            throw new CustomValidationException(
+                ErrorMessages::validationMessage($errors)
+            );
+    	}
 
-    /* #[Route('/{id}', name: 'app_project_list_delete', methods: ['POST'])] */
-    /* public function delete(Request $request, ProjectList $projectList, ProjectListRepository $projectListRepository): Response */
-    /* { */
-    /*     if ($this->isCsrfTokenValid('delete'.$projectList->getId(), $request->request->get('_token'))) { */
-    /*         $projectListRepository->remove($projectList, true); */
-    /*     } */
+        $pr->add($projectList, true);
 
-    /*     return $this->redirectToRoute('app_project_list_index', [], Response::HTTP_SEE_OTHER); */
-    /* } */
+		return $this->json("Ok", 202);
+    }
+
+    #[Route('/{id}/delete', name: 'app_project_list_delete', methods: ['POST'])]
+    public function delete(int $id): Response
+    {
+        if (($projectList = $this->_pr->find($id)) == null) 
+        {
+            throw new CustomNotFoundException(
+                ErrorMessages::entityNoFound(
+                    $id, $this->_pr->getClassName()
+                )
+            );
+        }
+
+        $this->_pr->remove($projectList, true);
+
+		return $this->json("Ok", 202);
+    }
 }
