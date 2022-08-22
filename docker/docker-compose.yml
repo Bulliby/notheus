@@ -1,7 +1,7 @@
 name: projects
 services:
   server:
-    image: "waxer/php8.1:symfony"
+    image: "waxer/symfony:8.1"
     ports:
       - "127.0.0.1:23004:80"
     volumes:
@@ -22,6 +22,8 @@ services:
       - "/home/waxer/dev/PHP/projects/docker/mysql-data:/var/lib/mysql"
   phpmyadmin:
     image: phpmyadmin
+    depends_on:
+      - mysql
     ports:
       - 8081:80
     environment:
