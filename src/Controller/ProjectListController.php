@@ -14,6 +14,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use App\Exception\CustomValidationException;
+use App\Exception\ClientEntityIdMismatch;
 use App\Exception\CustomNotFoundException;
 use App\Service\ErrorMessages;
 use App\Interface\SerializationContextInterface;
@@ -23,19 +24,22 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 #[Route('/project/list')]
 class ProjectListController extends AbstractController
 {
-    private $_sc;
-    private $_pr;
+    private $projectListRepository;
 
     public function __construct(SerializationContextInterface $sc, ProjectListRepository $pr)
     {
-        $this->_sc = $sc; 
-        $this->_pr = $pr; 
+        $this->projectListRepository = $pr; 
     }
 
     #[Route('/', name: 'app_project_list_index', methods: ['GET'])]
     public function index(): Response
     {
-        return $this->json($this->_pr->findAll(), 200);
+        return $this->json([
+            // We send the MaxID to avoid the client to wait the object
+            // persistence to continue with it's new ID.
+            'maxId' => $this->projectListRepository->getAutoIcrementId(),
+            'lists' => $this->projectListRepository->findAll()
+        ], 200);
     }
 
     #[Route('/add', name: 'app_project_list_new', methods: ['POST'])]
@@ -47,6 +51,11 @@ class ProjectListController extends AbstractController
     {
         $list = $s->deserialize($request->getContent(), ProjectList::class, 'json');
 
+        if ($list->getId() != $this->projectListRepository->getAutoIcrementId() + 1) {
+            // TODO remove this exception once well tested. Use the ProjectExceptionListner
+            throw new ClientEntityIdMismatch('ID given by client doesn\'t match database ID');
+        }
+
         $errors = $validator->validate($list);
 
 		if (count($errors) > 0) {
@@ -55,7 +64,7 @@ class ProjectListController extends AbstractController
             );
     	}
 
-        $this->_pr->add($list, true);
+        $this->projectListRepository->add($list, true);
 
 		return $this->json("Ok", 201);
     }
@@ -65,16 +74,16 @@ class ProjectListController extends AbstractController
         int $id,
     ): Response
     {
-        if (($projectList = $this->_pr->find($id)) == null) 
+        if (($projectList = $this->projectListRepository->find($id)) == null) 
         {
             throw new CustomNotFoundException(
                 ErrorMessages::entityNoFound(
-                    $id, $this->_pr->getClassName()
+                    $id, $this->projectListRepository->getClassName()
                 )
             );
         }
 
-		return $this->json($projectList, 200, [], $this->_sc->getContext());
+		return $this->json($projectList, 200, []);
     }
 
     #[Route('/{id}/edit', name: 'app_project_list_edit', methods: ['POST'])]
@@ -95,13 +104,11 @@ class ProjectListController extends AbstractController
             );
         }
 
-        $this->_sc->addObjectToPopulate($projectList);
-
         $s->deserialize(
             $request->getContent(),
             ProjectList::class, 
             'json', 
-            $this->_sc->getContext()
+            [AbstractNormalizer::OBJECT_TO_POPULATE => $projectList]
         );
 
         $errors = $v->validate($projectList);
@@ -120,16 +127,16 @@ class ProjectListController extends AbstractController
     #[Route('/{id}/delete', name: 'app_project_list_delete', methods: ['POST'])]
     public function delete(int $id): Response
     {
-        if (($projectList = $this->_pr->find($id)) == null) 
+        if (($projectList = $this->projectListRepository->find($id)) == null) 
         {
             throw new CustomNotFoundException(
                 ErrorMessages::entityNoFound(
-                    $id, $this->_pr->getClassName()
+                    $id, $this->projectListRepository->getClassName()
                 )
             );
         }
 
-        $this->_pr->remove($projectList, true);
+        $this->projectListRepository->remove($projectList, true);
 
 		return $this->json("Ok", 202);
     }

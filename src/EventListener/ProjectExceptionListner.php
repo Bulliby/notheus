@@ -7,6 +7,7 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 use App\Exception\CustomValidationException;
 use App\Exception\CustomNotFoundException;
+use App\Exception\ClientEntityIdMismatch;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Psr\Log\LoggerInterface;
 use App\Interface\CustomExceptionInterface;

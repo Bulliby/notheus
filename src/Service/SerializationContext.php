@@ -5,6 +5,7 @@ namespace App\Service;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use App\Interface\SerializationContextInterface;
 
+//TODO Remove this class
 class SerializationContext implements SerializationContextInterface
 {
     private $_context = [];
