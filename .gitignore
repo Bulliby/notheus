@@ -11,12 +11,11 @@
 .phpunit.result.cache
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
-
-docker/mysql-data
-docker/.env
-tags
-
 ###> phpunit/phpunit ###
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
+docker/mysql-data
+docker/.env
+tags
+coverage
