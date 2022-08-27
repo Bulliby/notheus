@@ -1,7 +1,7 @@
 name: projects
 services:
   server:
-    image: "waxer/symfony:8.1"
+    image: "waxer/projects:8.1"
     ports:
       - "127.0.0.1:23004:80"
     volumes:

@@ -39,6 +39,21 @@ class ProjectListRepository extends ServiceEntityRepository
         }
     }
 
+    public function getAutoIcrementId(): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = 'SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_NAME = :tablename AND TABLE_SCHEMA = :database';
+        $stmt = $conn->prepare($sql);
+
+        $resultSet = $stmt->executeQuery([
+            'tablename' => 'project_list',
+            'database' => 'projects'
+        ]);
+
+        return $resultSet->fetchAssociative()['AUTO_INCREMENT'];
+    }
+
 //    /**
 //     * @return ProjectList[] Returns an array of ProjectList objects
 //     */

@@ -16,16 +16,12 @@ class ProjectList
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    /**
-     * NOTE si il y a un setId() alors le deserializeur peuplera l'id
-     * ce qui peut engendrer des problèmes de securités. Mieux vaut 
-     * d'office le désactiver.
-     */
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
+    //#[Ignore]
     private ?string $name = null;
 
     #[ORM\OneToMany(mappedBy: 'projectList', targetEntity: Project::class)]
