@@ -16,9 +16,10 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
 use App\Exception\CustomValidationException;
 use App\Exception\ClientEntityIdMismatch;
 use App\Exception\CustomNotFoundException;
-use App\Service\ErrorMessages;
+use App\Const\ErrorMessages;
 use App\Interface\SerializationContextInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use App\Const\RestControllerConst;
 
 //TODO CSRF Token
 #[Route('/project/list')]
@@ -39,7 +40,7 @@ class ProjectListController extends AbstractController
             // persistence to continue with it's new ID.
             'maxId' => $this->projectListRepository->getAutoIcrementId(),
             'lists' => $this->projectListRepository->findAll()
-        ], 200);
+        ], RestControllerConst::SUCCESS_CODE);
     }
 
     #[Route('/add', name: 'app_project_list_new', methods: ['POST'])]
@@ -53,7 +54,12 @@ class ProjectListController extends AbstractController
 
         if ($list->getId() != $this->projectListRepository->getAutoIcrementId() + 1) {
             // TODO remove this exception once well tested. Use the ProjectExceptionListner
-            throw new ClientEntityIdMismatch('ID given by client doesn\'t match database ID');
+            throw new ClientEntityIdMismatch(
+                ErrorMessages::clientEntityIdMismatch(
+                    $list->getId(), 
+                    $this->projectListRepository->getAutoIcrementId() +1 
+                )
+            ); 
         }
 
         $errors = $validator->validate($list);
@@ -66,7 +72,7 @@ class ProjectListController extends AbstractController
 
         $this->projectListRepository->add($list, true);
 
-		return $this->json("Ok", 201);
+		return $this->json(RestControllerConst::SUCCESS_MESSAGE, RestControllerConst::SUCCES_CODE_CREATED);
     }
 
     #[Route('/{id}', name: 'app_project_list_show', methods: ['GET'])]
@@ -83,7 +89,7 @@ class ProjectListController extends AbstractController
             );
         }
 
-		return $this->json($projectList, 200, []);
+		return $this->json($projectList, RestControllerConst::SUCCESS_CODE, []);
     }
 
     #[Route('/{id}/edit', name: 'app_project_list_edit', methods: ['POST'])]
@@ -121,7 +127,7 @@ class ProjectListController extends AbstractController
 
         $pr->add($projectList, true);
 
-		return $this->json("Ok", 202);
+		return $this->json(RestControllerConst::SUCCESS_MESSAGE, RestControllerConst::SUCCESS_CODE);
     }
 
     #[Route('/{id}/delete', name: 'app_project_list_delete', methods: ['POST'])]
@@ -138,6 +144,6 @@ class ProjectListController extends AbstractController
 
         $this->projectListRepository->remove($projectList, true);
 
-		return $this->json("Ok", 202);
+		return $this->json(RestControllerConst::SUCCESS_MESSAGE, RestControllerConst::SUCCESS_CODE);
     }
 }

@@ -11,15 +11,16 @@ use App\Exception\ClientEntityIdMismatch;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Psr\Log\LoggerInterface;
 use App\Interface\CustomExceptionInterface;
+use App\Const\RestControllerConst;
 
 #[AsEventListener]
 final class ProjectExceptionListner
 {
     private $logger;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $craftedrequestLogger)
     {
-        $this->logger = $logger;
+        $this->logger = $craftedrequestLogger;
     }
 
     public function __invoke(ExceptionEvent $event)
@@ -32,6 +33,11 @@ final class ProjectExceptionListner
 			$event->setResponse($response);
 		}
 		if ($exception instanceof CustomNotFoundException) 
+        {
+      		$response = $this->handleApiException($event, $exception);
+			$event->setResponse($response);
+        }
+		if ($exception instanceof ClientEntityIdMismatch) 
         {
       		$response = $this->handleApiException($event, $exception);
 			$event->setResponse($response);
@@ -49,6 +55,6 @@ final class ProjectExceptionListner
 
         $this->logger->error("The requested is unatended : ".json_encode([$ip, $ips, $message]));
 		
-		return new JsonResponse("You request failed", 400);	
+		return new JsonResponse(RestControllerConst::ERROR_MESSAGE, RestControllerConst::ERROR_CODE);	
 	} 
 }

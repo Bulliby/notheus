@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Const;
 
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
@@ -10,12 +10,12 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
  */
 class ErrorMessages
 {
-    public static function entityNoFound(int $id, string $class)
+    public static function entityNoFound(int $id, string $class): string
     {
         return sprintf("Not found, try to fecth id : %d from %s ", $id, $class);
     }
 
-    public static function validationMessage(ConstraintViolationListInterface $errors)
+    public static function validationMessage(ConstraintViolationListInterface $errors): string
     {
         $messages = [];
 
@@ -25,5 +25,14 @@ class ErrorMessages
         }
 
         return json_encode($messages);
+    }
+
+    public static function clientEntityIdMismatch(int $idClient, int $serverId): string
+    {
+        return sprintf(
+            "Client id guessed %d server autoincrement id : %d ", 
+            $idClient, 
+            $serverId
+        );
     }
 }
