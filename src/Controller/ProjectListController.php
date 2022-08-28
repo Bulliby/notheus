@@ -53,7 +53,6 @@ class ProjectListController extends AbstractController
         $list = $s->deserialize($request->getContent(), ProjectList::class, 'json');
 
         if ($list->getId() != $this->projectListRepository->getAutoIcrementId() + 1) {
-            // TODO remove this exception once well tested. Use the ProjectExceptionListner
             throw new ClientEntityIdMismatch(
                 ErrorMessages::clientEntityIdMismatch(
                     $list->getId(), 

@@ -16,12 +16,12 @@ class ProjectList
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    //#[Ignore]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
-    //#[Ignore]
     private ?string $name = null;
 
     #[ORM\OneToMany(mappedBy: 'projectList', targetEntity: Project::class)]
