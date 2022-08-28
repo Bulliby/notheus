@@ -17,8 +17,8 @@ class ProjectListControllerAddTest extends WebTestCase
         $container = static::getContainer();
         $projectListRepository = $container->get(ProjectListRepository::class);
 
-        $client->jsonRequest('POST', '/project/list/add', 
-            ['id' => $projectListRepository->getAutoIcrementId() + 1, 
+        $client->jsonRequest('POST', '/project/list/add', [
+            'id' => $projectListRepository->getAutoIcrementId() + 1, 
             'name' => 'test add'
         ]);
 
