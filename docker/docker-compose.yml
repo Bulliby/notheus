@@ -3,9 +3,9 @@ services:
   server:
     image: "waxer/projects:8.1"
     ports:
-      - "127.0.0.1:23004:80"
+      - "${LISTENING_IP}:23004:80"
     volumes:
-      - "/home/waxer/dev/PHP/projects:/srv/http/"
+      - "${SITE_PATH}:/srv/http/"
   mysql:
     image: "mysql"
     environment:
@@ -17,14 +17,14 @@ services:
     depends_on:
       - server
     ports:
-      - "127.0.0.1:23005:3306"
+      - "${LISTENING_IP}:23005:3306"
     volumes:
-      - "/home/waxer/dev/PHP/projects/docker/mysql-data:/var/lib/mysql"
+      - "${MYSQL_DATA_PATH}:/var/lib/mysql"
   phpmyadmin:
     image: phpmyadmin
     depends_on:
       - mysql
     ports:
-      - 8081:80
+      - "${LISTENING_IP}:8081:80"
     environment:
       - PMA_HOST=mysql
