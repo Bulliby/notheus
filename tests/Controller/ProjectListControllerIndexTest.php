@@ -35,7 +35,6 @@ class ProjectListControllerIndexTest extends WebTestCase
     {
         $response = json_decode($response, true);
 
-        $this->assertArrayHasKey('maxId', $response);
         $this->assertArrayHasKey('lists', $response);
     }
 }

@@ -4,12 +4,10 @@ namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Repository\ProjectListRepository;
-use App\Const\RestControllerConst;
-use App\Interface\CustomExceptionInterface;
-use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpFoundation\Response;
 
-class ProjectListControllerAddTest extends WebTestCase
+
+class ProjectListControllerDeleteTest extends WebTestCase
 {
     public function testResponseIsSuccessful(): string
     {
@@ -18,27 +16,23 @@ class ProjectListControllerAddTest extends WebTestCase
         $container = static::getContainer();
         $projectListRepository = $container->get(ProjectListRepository::class);
 
-        $client->jsonRequest('POST', '/project/list/add', [
-            'name' => 'test add'
-        ]);
+        $id = static::getContainer()->getParameter('api_constants.id.found');
+        $client->request('POST', "/project/list/$id/delete");
 
         $this->assertResponseIsSuccessful();
 
         return $client->getResponse()->getContent();
     }
 
-    public function testEmptyName(): string
+    public function testResponseNotFound(): string
     {
         $client = static::createClient();
         self::bootKernel();
         $container = static::getContainer();
         $projectListRepository = $container->get(ProjectListRepository::class);
 
-        $client->jsonRequest('POST', '/project/list/add', 
-            [
-                'name' => ''
-            ]
-        );
+        $id = static::getContainer()->getParameter('api_constants.id.notFound');
+        $client->request('POST', "/project/list/$id/delete");
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
 
@@ -47,37 +41,24 @@ class ProjectListControllerAddTest extends WebTestCase
 
     /**
      * @depends testResponseIsSuccessful
+     * @depends testResponseNotFound
      */
-    public function testResponseIsJsonSuccess(string $a): void
+    public function testResponseIsJsonError(string $a, string $b): void
     {
         $this->assertJson($a);
+        $this->assertJson($b);
     }
 
     /**
      * @depends testResponseIsSuccessful
+     * @depends testResponseNotFound
      */ 
-    public function testJsonResponseSchemaSuccess(string $a): void
+    public function JsonResponseSchema(string $a, string $b): void
     {
         $ar = json_decode($a, true);
+        $br = json_decode($b, true);
 
-        $this->assertIsInt($ar);
+        $this->assertSame($ar, $this->getParameter('api_constants.messages.success'));
+        $this->assertSame($br, $this->getParameter('api_constants.messages.error'));
     }
-    /**
-     * @depends testEmptyName
-     */
-    public function testResponseIsJsonError(string $a): void
-    {
-        $this->assertJson($a);
-    }
-
-    /**
-     * @depends testEmptyName
-     */ 
-    public function testJsonResponseSchema(string $a): void
-    {
-        $ar = json_decode($a, true);
-
-        $this->assertSame($ar, static::getContainer()->getParameter('api_constants.messages.error'));
-    }
-
 }

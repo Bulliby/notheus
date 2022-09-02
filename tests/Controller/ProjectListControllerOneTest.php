@@ -5,6 +5,8 @@ namespace App\Tests\Controller;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Repository\ProjectListRepository;
 use App\Const\RestControllerConst;
+use Symfony\Component\HttpFoundation\Response;
+
 
 class ProjectListControllerOneTest extends WebTestCase
 {
@@ -15,8 +17,7 @@ class ProjectListControllerOneTest extends WebTestCase
         $container = static::getContainer();
         $projectListRepository = $container->get(ProjectListRepository::class);
 
-        //Here we get the autoincrement ID to be sure to not hit a 404
-        $client->request('GET', '/project/list/'.$projectListRepository->getAutoIcrementId() - 1);
+        $client->request('GET', '/project/list/1');
 
         $this->assertResponseIsSuccessful();
 
@@ -30,11 +31,9 @@ class ProjectListControllerOneTest extends WebTestCase
         $container = static::getContainer();
         $projectListRepository = $container->get(ProjectListRepository::class);
 
-        //Here we get the autoincrement ID + 1 to be sure to hit a 404
-        $id = $projectListRepository->getAutoIcrementId();
-        $client->request('GET', '/project/list/'.$id);
+        $client->request('GET', '/project/list/3');
 
-        $this->assertResponseStatusCodeSame(RestControllerConst::ERROR_CODE);
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
 
         return $client->getResponse()->getContent();
     }
@@ -50,13 +49,15 @@ class ProjectListControllerOneTest extends WebTestCase
     }
 
     /**
+     * @depends testResponseIsSuccessful
+     * @depends testResponseNotFound
      */ 
     public function JsonResponseSchema(string $a, string $b): void
     {
         $ar = json_decode($a, true);
         $br = json_decode($b, true);
 
-        $this->assertSame($ar, RestControllerConst::SUCCESS_MESSAGE);
-        $this->assertSame($br, RestControllerConst::ERROR_MESSAGE);
+        $this->assertSame($ar, $this->getParameter('api_constants.messages.success'));
+        $this->assertSame($br, $this->getParameter('api_constants.messages.error'));
     }
 }

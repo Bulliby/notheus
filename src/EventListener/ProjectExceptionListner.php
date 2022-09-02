@@ -12,15 +12,18 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Psr\Log\LoggerInterface;
 use App\Interface\CustomExceptionInterface;
 use App\Const\RestControllerConst;
+use Symfony\Component\HttpFoundation\Response;
 
 #[AsEventListener]
 final class ProjectExceptionListner
 {
     private $logger;
+    private $errorMessage;
 
-    public function __construct(LoggerInterface $craftedrequestLogger)
+    public function __construct(LoggerInterface $craftedrequestLogger, string $errorMessage)
     {
         $this->logger = $craftedrequestLogger;
+        $this->errorMessage = $errorMessage;
     }
 
     public function __invoke(ExceptionEvent $event)
@@ -55,6 +58,6 @@ final class ProjectExceptionListner
 
         $this->logger->error("The requested is unatended : ".json_encode([$ip, $ips, $message]));
 		
-		return new JsonResponse(RestControllerConst::ERROR_MESSAGE, RestControllerConst::ERROR_CODE);	
+		return new JsonResponse($this->errorMessage, Response::HTTP_BAD_REQUEST);	
 	} 
 }
