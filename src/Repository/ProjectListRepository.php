@@ -21,13 +21,15 @@ class ProjectListRepository extends ServiceEntityRepository
         parent::__construct($registry, ProjectList::class);
     }
 
-    public function add(ProjectList $entity, bool $flush = false): void
+    public function add(ProjectList $entity, bool $flush = false): int
     {
         $this->getEntityManager()->persist($entity);
 
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+
+        return $entity->getId();
     }
 
     public function remove(ProjectList $entity, bool $flush = false): void
@@ -37,29 +39,6 @@ class ProjectListRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
-    }
-
-    /**
-     *  In mysql 8, information-schema are cached, request ANALYZE TABLE
-     *  is the way to refresh it :
-     *  https://dev.mysql.com/doc/refman/8.0/en/information-schema-optimization.html
-     */
-    public function getAutoIcrementId(): int
-    {
-        $em = $this->getEntityManager();
-        $conn = $em->getConnection();
-
-        $stmt = $conn->prepare('ANALYZE TABLE '.$em->getClassMetadata(ProjectList::class)->getTableName());
-        $resultSet = $stmt->executeQuery();
-        $resultSet->fetchAssociative();
-
-        $stmt = $conn->prepare('SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_NAME = :tablename AND TABLE_SCHEMA = :database');
-        $resultSet = $stmt->executeQuery([
-            'tablename' => $em->getClassMetadata(ProjectList::class)->getTableName(),
-            'database' => $conn->getDatabase()
-        ]);
-
-        return $resultSet->fetchAssociative()['AUTO_INCREMENT'];
     }
 
 //    /**

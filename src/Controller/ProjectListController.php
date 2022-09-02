@@ -19,7 +19,6 @@ use App\Exception\CustomNotFoundException;
 use App\Const\ErrorMessages;
 use App\Interface\SerializationContextInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use App\Const\RestControllerConst;
 
 //TODO CSRF Token
 #[Route('/project/list')]
@@ -27,7 +26,7 @@ class ProjectListController extends AbstractController
 {
     private $projectListRepository;
 
-    public function __construct(SerializationContextInterface $sc, ProjectListRepository $pr)
+    public function __construct(ProjectListRepository $pr)
     {
         $this->projectListRepository = $pr; 
     }
@@ -38,9 +37,8 @@ class ProjectListController extends AbstractController
         return $this->json([
             // We send the MaxID to avoid the client to wait the object
             // persistence to continue with it's new ID.
-            'maxId' => $this->projectListRepository->getAutoIcrementId(),
             'lists' => $this->projectListRepository->findAll()
-        ], RestControllerConst::SUCCESS_CODE);
+        ], Response::HTTP_OK);
     }
 
     #[Route('/add', name: 'app_project_list_new', methods: ['POST'])]
@@ -52,15 +50,6 @@ class ProjectListController extends AbstractController
     {
         $list = $s->deserialize($request->getContent(), ProjectList::class, 'json');
 
-        if ($list->getId() != $this->projectListRepository->getAutoIcrementId() + 1) {
-            throw new ClientEntityIdMismatch(
-                ErrorMessages::clientEntityIdMismatch(
-                    $list->getId(), 
-                    $this->projectListRepository->getAutoIcrementId() +1 
-                )
-            ); 
-        }
-
         $errors = $validator->validate($list);
 
 		if (count($errors) > 0) {
@@ -69,9 +58,9 @@ class ProjectListController extends AbstractController
             );
     	}
 
-        $this->projectListRepository->add($list, true);
+        $listId = $this->projectListRepository->add($list, true);
 
-		return $this->json(RestControllerConst::SUCCESS_MESSAGE, RestControllerConst::SUCCES_CODE_CREATED);
+		return $this->json($listId, Response::HTTP_CREATED);
     }
 
     #[Route('/{id}', name: 'app_project_list_show', methods: ['GET'])]
@@ -88,7 +77,7 @@ class ProjectListController extends AbstractController
             );
         }
 
-		return $this->json($projectList, RestControllerConst::SUCCESS_CODE, []);
+		return $this->json($projectList, Response::HTTP_OK, []);
     }
 
     #[Route('/{id}/edit', name: 'app_project_list_edit', methods: ['POST'])]
@@ -126,7 +115,7 @@ class ProjectListController extends AbstractController
 
         $pr->add($projectList, true);
 
-		return $this->json(RestControllerConst::SUCCESS_MESSAGE, RestControllerConst::SUCCESS_CODE);
+		return $this->json($this->getParameter('api_constants.messages.success'), Response::HTTP_OK);
     }
 
     #[Route('/{id}/delete', name: 'app_project_list_delete', methods: ['POST'])]
@@ -143,6 +132,6 @@ class ProjectListController extends AbstractController
 
         $this->projectListRepository->remove($projectList, true);
 
-		return $this->json(RestControllerConst::SUCCESS_MESSAGE, RestControllerConst::SUCCESS_CODE);
+		return $this->json($this->getParameter('api_constants.messages.success'), Response::HTTP_OK);
     }
 }
