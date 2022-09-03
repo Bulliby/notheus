@@ -1,22 +1,19 @@
 <?php
 
-namespace App\Tests\Controller;
+namespace App\Tests\Controller\List;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use App\Repository\ProjectListRepository;
-use App\Const\RestControllerConst;
+use App\Repository\ListRepository;
 use App\Interface\CraftedRequestException;
-use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpFoundation\Response;
 
-class ProjectListControllerAddTest extends WebTestCase
+class ListAddControllerTest extends WebTestCase
 {
     public function testResponseIsSuccessful(): string
     {
         $client = static::createClient();
-        self::bootKernel();
 
-        $client->jsonRequest('POST', '/project/list/add', [
+        $client->jsonRequest('POST', '/list/', [
             'name' => 'test add'
         ]);
 
@@ -28,13 +25,10 @@ class ProjectListControllerAddTest extends WebTestCase
     public function testEmptyName(): string
     {
         $client = static::createClient();
-        self::bootKernel();
 
-        $client->jsonRequest('POST', '/project/list/add', 
-            [
-                'name' => ''
-            ]
-        );
+        $client->jsonRequest('POST', '/list/', [
+            'name' => ''
+        ]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
 

@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: ProjectGroupRepository::class)]
-class ProjectGroup
+class Category
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -21,12 +21,12 @@ class ProjectGroup
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\OneToMany(mappedBy: 'projectGroup', targetEntity: Project::class)]
-    private Collection $project;
+    #[ORM\ManyToMany(targetEntity: Note::class, mappedBy: 'categories')]
+    private Collection $notes;
 
     public function __construct()
     {
-        $this->project = new ArrayCollection();
+        $this->notes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -47,30 +47,27 @@ class ProjectGroup
     }
 
     /**
-     * @return Collection<int, Project>
+     * @return Collection<int, Note>
      */
-    public function getProject(): Collection
+    public function getNotes(): Collection
     {
-        return $this->project;
+        return $this->notes;
     }
 
-    public function addProject(Project $project): self
+    public function addNote(Note $note): self
     {
-        if (!$this->project->contains($project)) {
-            $this->project->add($project);
-            $project->setProjectGroup($this);
+        if (!$this->notes->contains($note)) {
+            $this->notes->add($note);
+            $note->addCategory($this);
         }
 
         return $this;
     }
 
-    public function removeProject(Project $project): self
+    public function removeNote(Note $note): self
     {
-        if ($this->project->removeElement($project)) {
-            // set the owning side to null (unless already changed)
-            if ($project->getProjectGroup() === $this) {
-                $project->setProjectGroup(null);
-            }
+        if ($this->notes->removeElement($note)) {
+            $note->removeCategory($this);
         }
 
         return $this;

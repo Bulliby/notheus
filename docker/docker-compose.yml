@@ -1,4 +1,4 @@
-name: projects
+name: notheus
 services:
   server:
     image: "waxer/projects:8.1"

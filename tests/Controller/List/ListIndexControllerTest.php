@@ -1,17 +1,16 @@
 <?php
 
-namespace App\Tests\Controller;
+namespace App\Tests\Controller\List;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
-use App\DataFixtures\ProjectList;
 
-class ProjectListControllerIndexTest extends WebTestCase
+class ListIndexControllerTest extends WebTestCase
 {
     public function testResponseIsSuccessful(): string
     {
         $client = static::createClient();
-        $client->request('GET', '/project/list/');
+        $client->request('GET', '/list/');
 
         $this->assertResponseIsSuccessful();
 

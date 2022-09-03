@@ -8,8 +8,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 use Symfony\Component\Serializer\Annotation\Ignore;
 
-#[ORM\Entity(repositoryClass: ProjectDetailRepository::class)]
-class ProjectDetail
+#[ORM\Entity(repositoryClass: NoteDetailRepository::class)]
+class Detail
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -19,8 +19,8 @@ class ProjectDetail
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\ManyToOne(inversedBy: 'projectDetails')]
-    private ?Project $project = null;
+    #[ORM\OneToOne(mappedBy: 'detail', cascade: ['persist', 'remove'])]
+    private ?Note $note = null;
 
     public function getId(): ?int
     {
@@ -39,14 +39,24 @@ class ProjectDetail
         return $this;
     }
 
-    public function getProject(): ?Project
+    public function getNote(): ?Note
     {
-        return $this->project;
+        return $this->note;
     }
 
-    public function setProject(?Project $project): self
+    public function setNote(?Note $note): self
     {
-        $this->project = $project;
+        // unset the owning side of the relation if necessary
+        if ($note === null && $this->note !== null) {
+            $this->note->setDetail(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($note !== null && $note->getDetail() !== $this) {
+            $note->setDetail($this);
+        }
+
+        $this->note = $note;
 
         return $this;
     }
