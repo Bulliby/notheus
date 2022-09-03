@@ -14,10 +14,9 @@ class ProjectListControllerDeleteTest extends WebTestCase
         $client = static::createClient();
         self::bootKernel();
         $container = static::getContainer();
-        $projectListRepository = $container->get(ProjectListRepository::class);
 
         $id = static::getContainer()->getParameter('api_constants.id.found');
-        $client->request('POST', "/project/list/$id/delete");
+        $client->request('DELETE', "/project/list/$id/delete");
 
         $this->assertResponseIsSuccessful();
 
@@ -29,10 +28,9 @@ class ProjectListControllerDeleteTest extends WebTestCase
         $client = static::createClient();
         self::bootKernel();
         $container = static::getContainer();
-        $projectListRepository = $container->get(ProjectListRepository::class);
 
         $id = static::getContainer()->getParameter('api_constants.id.notFound');
-        $client->request('POST', "/project/list/$id/delete");
+        $client->request('DELETE', "/project/list/$id/delete");
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
 

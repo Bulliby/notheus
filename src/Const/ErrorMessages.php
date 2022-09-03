@@ -15,7 +15,9 @@ class ErrorMessages
         return sprintf("Not found, try to fecth id : %d from %s ", $id, $class);
     }
 
-    public static function validationMessage(ConstraintViolationListInterface $errors): string
+    public static function validationMessage(
+        ConstraintViolationListInterface $errors
+    ): string
     {
         $messages = [];
 

@@ -2,7 +2,7 @@
 
 namespace App\Interface;
 
-interface CustomExceptionInterface
+interface CraftedRequestException
 {
 
 }
