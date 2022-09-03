@@ -16,7 +16,7 @@ class ProjectListControllerEditTest extends WebTestCase
         $projectListRepository = $container->get(ProjectListRepository::class);
 
         $id = static::getContainer()->getParameter('api_constants.id.found');
-        $client->jsonRequest('POST', "/project/list/$id/edit", [
+        $client->jsonRequest('PUT', "/project/list/$id/edit", [
             'name' => 'voila',
         ]);
 
@@ -33,7 +33,7 @@ class ProjectListControllerEditTest extends WebTestCase
         $projectListRepository = $container->get(ProjectListRepository::class);
 
         $id = static::getContainer()->getParameter('api_constants.id.found');
-        $client->jsonRequest('POST', "/project/list/$id/edit", 
+        $client->jsonRequest('PUT', "/project/list/$id/edit", 
             [
                 'name' => ''
             ]
@@ -52,7 +52,7 @@ class ProjectListControllerEditTest extends WebTestCase
         $projectListRepository = $container->get(ProjectListRepository::class);
 
         $id = static::getContainer()->getParameter('api_constants.id.notFound');
-        $client->jsonRequest('POST', "/project/list/$id/edit", [
+        $client->jsonRequest('PUT', "/project/list/$id/edit", [
             'name' => 'voila',
         ]);
 

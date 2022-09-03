@@ -80,7 +80,7 @@ class ProjectListController extends AbstractController
 		return $this->json($projectList, Response::HTTP_OK, []);
     }
 
-    #[Route('/{id}/edit', name: 'app_project_list_edit', methods: ['POST'])]
+    #[Route('/{id}/edit', name: 'app_project_list_edit', methods: ['PUT'])]
     public function edit(
         int $id, 
         Request $request, 
@@ -118,7 +118,7 @@ class ProjectListController extends AbstractController
 		return $this->json($this->getParameter('api_constants.messages.success'), Response::HTTP_OK);
     }
 
-    #[Route('/{id}/delete', name: 'app_project_list_delete', methods: ['POST'])]
+    #[Route('/{id}/delete', name: 'app_project_list_delete', methods: ['DELETE'])]
     public function delete(int $id): Response
     {
         if (($projectList = $this->projectListRepository->find($id)) == null) 

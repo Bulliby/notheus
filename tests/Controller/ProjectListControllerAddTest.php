@@ -5,7 +5,7 @@ namespace App\Tests\Controller;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Repository\ProjectListRepository;
 use App\Const\RestControllerConst;
-use App\Interface\CustomExceptionInterface;
+use App\Interface\CraftedRequestException;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,8 +15,6 @@ class ProjectListControllerAddTest extends WebTestCase
     {
         $client = static::createClient();
         self::bootKernel();
-        $container = static::getContainer();
-        $projectListRepository = $container->get(ProjectListRepository::class);
 
         $client->jsonRequest('POST', '/project/list/add', [
             'name' => 'test add'
@@ -31,8 +29,6 @@ class ProjectListControllerAddTest extends WebTestCase
     {
         $client = static::createClient();
         self::bootKernel();
-        $container = static::getContainer();
-        $projectListRepository = $container->get(ProjectListRepository::class);
 
         $client->jsonRequest('POST', '/project/list/add', 
             [
