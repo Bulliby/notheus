@@ -5,16 +5,14 @@ namespace App\EventListener;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
-use App\Exception\ClientEntityIdMismatch;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Psr\Log\LoggerInterface;
 use App\Interface\CraftedRequestException;
-use App\Const\RestControllerConst;
 use Symfony\Component\HttpFoundation\Response;
 
 #[AsEventListener]
 # TODO it's Listener
-final class ProjectExceptionListner
+final class ExceptionListener
 {
     private $logger;
     private $errorMessage;
