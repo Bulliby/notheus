@@ -1,25 +1,22 @@
 <?php
 
-namespace App\Tests\Controller;
+namespace App\Tests\Controller\List;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use App\Repository\ProjectListRepository;
 use Symfony\Component\HttpFoundation\Response;
 
-class ProjectListControllerEditTest extends WebTestCase
+class ListEditControllerTest extends WebTestCase
 {
     public function testResponseIsSuccessful(): string
     {
         $client = static::createClient();
-        self::bootKernel();
-        $container = static::getContainer();
-        $projectListRepository = $container->get(ProjectListRepository::class);
 
+        $container = static::getContainer();
         $id = static::getContainer()->getParameter('api_constants.id.found');
-        $client->jsonRequest('PUT', "/project/list/$id/edit", [
+
+        $client->jsonRequest('PUT', "/list/$id", [
             'name' => 'voila',
         ]);
-
         $this->assertResponseIsSuccessful();
 
         return $client->getResponse()->getContent();
@@ -28,17 +25,15 @@ class ProjectListControllerEditTest extends WebTestCase
     public function testEmptyName(): string
     {
         $client = static::createClient();
-        self::bootKernel();
-        $container = static::getContainer();
-        $projectListRepository = $container->get(ProjectListRepository::class);
 
+        $container = static::getContainer();
         $id = static::getContainer()->getParameter('api_constants.id.found');
+
         $client->jsonRequest('PUT', "/project/list/$id/edit", 
             [
                 'name' => ''
             ]
         );
-
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
 
         return $client->getResponse()->getContent();
@@ -47,15 +42,12 @@ class ProjectListControllerEditTest extends WebTestCase
     public function testResponseNotFound(): string
     {
         $client = static::createClient();
-        self::bootKernel();
-        $container = static::getContainer();
-        $projectListRepository = $container->get(ProjectListRepository::class);
 
+        $container = static::getContainer();
         $id = static::getContainer()->getParameter('api_constants.id.notFound');
-        $client->jsonRequest('PUT', "/project/list/$id/edit", [
+        $client->jsonRequest('PUT', "/list/$id", [
             'name' => 'voila',
         ]);
-
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
 
         return $client->getResponse()->getContent();
