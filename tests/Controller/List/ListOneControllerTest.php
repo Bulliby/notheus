@@ -1,23 +1,20 @@
 <?php
 
-namespace App\Tests\Controller;
+namespace App\Tests\Controller\List;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use App\Repository\ProjectListRepository;
 use Symfony\Component\HttpFoundation\Response;
 
 
-class ProjectListControllerDeleteTest extends WebTestCase
+class ListOneControllerTest extends WebTestCase
 {
     public function testResponseIsSuccessful(): string
     {
         $client = static::createClient();
-        self::bootKernel();
-        $container = static::getContainer();
 
         $id = static::getContainer()->getParameter('api_constants.id.found');
-        $client->request('DELETE', "/project/list/$id/delete");
 
+        $client->request('GET', "/list/$id");
         $this->assertResponseIsSuccessful();
 
         return $client->getResponse()->getContent();
@@ -26,12 +23,10 @@ class ProjectListControllerDeleteTest extends WebTestCase
     public function testResponseNotFound(): string
     {
         $client = static::createClient();
-        self::bootKernel();
-        $container = static::getContainer();
 
         $id = static::getContainer()->getParameter('api_constants.id.notFound');
-        $client->request('DELETE', "/project/list/$id/delete");
 
+        $client->request('GET', "/list/$id");
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
 
         return $client->getResponse()->getContent();
