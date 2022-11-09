@@ -1,7 +1,7 @@
 name: notheus
 services:
   server:
-    image: "waxer/projects:8.1"
+    image: "waxer/notheus:8.1"
     ports:
       - "${LISTENING_IP}:23004:80"
     volumes:

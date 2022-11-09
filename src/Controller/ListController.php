@@ -15,6 +15,8 @@ use Symfony\Component\Serializer\SerializerInterface;
 use App\Exception\ValidationException;
 use App\Exception\NotFoundException;
 use App\Const\ErrorMessages;
+use Doctrine\Common\Collections\ArrayCollection;
+
 
 //TODO CSRF Token
 #[Route('/list')]
@@ -128,5 +130,44 @@ class ListController extends AbstractController
         $this->listRepository->remove($list, true);
 
 		return $this->json($this->getParameter('api_constants.messages.success'), Response::HTTP_OK);
+    }
+
+    #[Route('/positions', name: 'app_list_positions', methods: ['POST'])]
+    public function positions(
+        Request $request, 
+        SerializerInterface $s,
+        ValidatorInterface $validator
+    )
+    {
+        $cards = $s->deserialize($request->getContent(), XList::class.'[]', 'json');
+        $count = count($cards);
+        $cards = new ArrayCollection($cards);
+        $order = 1;
+
+        if ($count !=  $this->listRepository->countCards()) {
+            throw new ValidationException('Cards Number crafted');
+        }
+
+        $cards->map(function($card) use ($count, &$order) {
+            if ($card->getPosition() > $count) {
+                throw new ValidationException('Position crafted');
+            } if ($order != $card->getPosition()) {
+                throw new ValidationException('Order crafted');
+            }
+            $order++;
+        }); 
+
+    
+        $errors = $validator->validate($cards);
+
+		if (count($errors) > 0) {
+            throw new ValidationException(
+                ErrorMessages::validationMessage($errors)
+            );
+    	}
+
+        $this->listRepository->positions($cards, true);
+
+		return $this->json("", Response::HTTP_CREATED);
     }
 }
