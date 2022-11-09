@@ -27,6 +27,11 @@ class XList
     #[ORM\OneToMany(mappedBy: 'xList', targetEntity: Note::class, orphanRemoval: true)]
     private Collection $notes;
 
+    #[ORM\Column]
+    #[Assert\LessThan(100)]
+    #[Assert\Positive]
+    private ?int $position = null;
+
     public function __construct()
     {
         $this->notes = new ArrayCollection();
@@ -75,6 +80,18 @@ class XList
                 $note->setXList(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPosition(): ?int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): self
+    {
+        $this->position = $position;
 
         return $this;
     }

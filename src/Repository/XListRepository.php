@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\XList;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @extends ServiceEntityRepository<XList>
@@ -41,28 +42,29 @@ class XListRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return XList[] Returns an array of XList objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('x')
-//            ->andWhere('x.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('x.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function positions(ArrayCollection $cards, bool $flush = false): ArrayCollection
+    {
 
-//    public function findOneBySomeField($value): ?XList
-//    {
-//        return $this->createQueryBuilder('x')
-//            ->andWhere('x.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        $id = 1;
+        foreach($cards as $card) {
+            $el = $this->getEntityManager()->getRepository(XList::class)->find($id);
+            if ($el) {
+                $el->setName($card->getName());
+                $el->setPosition($card->getPosition());
+                $this->getEntityManager()->persist($el);
+            }
+            $id++;
+        }
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+
+        return $cards;
+    }
+
+    public function countCards()
+    {
+        return count($this->getEntityManager()->getRepository(XList::class)->findAll());
+    }
 }
