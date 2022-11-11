@@ -21,7 +21,7 @@ class XList
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Assert\Length(max: 255)]
+    #[Assert\Length(max: 8)]
     private ?string $name = null;
 
     #[ORM\OneToMany(mappedBy: 'xList', targetEntity: Note::class, orphanRemoval: true)]
