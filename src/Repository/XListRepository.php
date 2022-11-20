@@ -24,6 +24,9 @@ class XListRepository extends ServiceEntityRepository
 
     public function add(XList $entity, bool $flush = false): int
     {
+        $pos = $this->getLastPosition();
+        $entity->setPosition($pos);
+
         $this->getEntityManager()->persist($entity);
 
         if ($flush) {
@@ -31,6 +34,18 @@ class XListRepository extends ServiceEntityRepository
         }
 
         return $entity->getId();
+    }
+
+    private function getLastPosition()
+    {
+        $query = $this->createQueryBuilder('x')
+                      ->select('x.position')
+                      ->orderBy('x.position', 'DESC')
+                      ->getQuery();
+
+        $pos = $query->setMaxResults(1)->getOneOrNullResult();
+
+        return $pos ? $pos['position'] + 1 : 1;
     }
 
     public function remove(XList $entity, bool $flush = false): void

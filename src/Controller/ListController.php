@@ -46,9 +46,9 @@ class ListController extends AbstractController
         ValidatorInterface $validator
     ): Response
     {
-        $list = $s->deserialize($request->getContent(), XList::class, 'json');
+        $card = $s->deserialize($request->getContent(), XList::class, 'json');
 
-        $errors = $validator->validate($list);
+        $errors = $validator->validate($card);
 
 		if (count($errors) > 0) {
             throw new ValidationException(
@@ -56,7 +56,7 @@ class ListController extends AbstractController
             );
     	}
 
-        $listId = $this->listRepository->add($list, true);
+        $listId = $this->listRepository->add($card, true);
 
 		return $this->json($listId, Response::HTTP_CREATED);
     }
@@ -149,15 +149,13 @@ class ListController extends AbstractController
         }
 
         $cards->map(function($card) use ($count, &$order) {
-            if ($card->getPosition() > $count) {
-                throw new ValidationException('Position crafted');
-            } if ($order != $card->getPosition()) {
+            if ($order != $card->getPosition()) {
                 throw new ValidationException('Order crafted');
             }
             $order++;
         }); 
 
-    
+   
         $errors = $validator->validate($cards);
 
 		if (count($errors) > 0) {
@@ -168,6 +166,6 @@ class ListController extends AbstractController
 
         $this->listRepository->positions($cards, true);
 
-		return $this->json("", Response::HTTP_CREATED);
+		return $this->json("OK", Response::HTTP_CREATED);
     }
 }
