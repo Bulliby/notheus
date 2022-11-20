@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Ignore;
 use App\Entity\xList;
+use Symfony\Brsdge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: XListRepository::class)]
 class XList
@@ -24,10 +25,7 @@ class XList
     #[Assert\Length(max: 8)]
     private ?string $name = null;
 
-    #[ORM\OneToMany(mappedBy: 'xList', targetEntity: Note::class, orphanRemoval: true)]
-    private Collection $notes;
-
-    #[ORM\Column]
+    #[ORM\Column(unique: true)]
     #[Assert\LessThan(100)]
     #[Assert\Positive]
     private ?int $position = null;
@@ -50,36 +48,6 @@ class XList
     public function setName(string $name): self
     {
         $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Note>
-     */
-    public function getNotes(): Collection
-    {
-        return $this->notes;
-    }
-
-    public function addNote(Note $note): self
-    {
-        if (!$this->notes->contains($note)) {
-            $this->notes->add($note);
-            $note->setXList($this);
-        }
-
-        return $this;
-    }
-
-    public function removeNote(Note $note): self
-    {
-        if ($this->notes->removeElement($note)) {
-            // set the owning side to null (unless already changed)
-            if ($note->getXList() === $this) {
-                $note->setXList(null);
-            }
-        }
 
         return $this;
     }
