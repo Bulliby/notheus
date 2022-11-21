@@ -59,15 +59,4 @@ class ListAddControllerTest extends WebTestCase
     {
         $this->assertJson($a);
     }
-
-    /**
-     * @depends testEmptyName
-     */ 
-    public function testJsonResponseSchema(string $a): void
-    {
-        $ar = json_decode($a, true);
-
-        $this->assertSame($ar, static::getContainer()->getParameter('api_constants.messages.error'));
-    }
-
 }

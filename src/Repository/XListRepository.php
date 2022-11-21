@@ -22,16 +22,11 @@ class XListRepository extends ServiceEntityRepository
         parent::__construct($registry, XList::class);
     }
 
-    public function add(XList $entity, bool $flush = false): int
+    public function add(XList $entity): int
     {
-        $pos = $this->getLastPosition();
-        $entity->setPosition($pos);
-
+        $entity->setPosition($this->getLastPosition());
         $this->getEntityManager()->persist($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        $this->getEntityManager()->flush();
 
         return $entity->getId();
     }
@@ -48,34 +43,20 @@ class XListRepository extends ServiceEntityRepository
         return $pos ? $pos['position'] + 1 : 1;
     }
 
-    public function remove(XList $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->remove($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
-
-    public function positions(ArrayCollection $cards, bool $flush = false): ArrayCollection
+    public function positions(array $requestCards): void
     {
 
-        $id = 1;
-        foreach($cards as $card) {
-            $el = $this->getEntityManager()->getRepository(XList::class)->find($id);
-            if ($el) {
-                $el->setName($card->getName());
-                $el->setPosition($card->getPosition());
-                $this->getEntityManager()->persist($el);
+        foreach($requestCards as $requestCard) {
+            $card = $this->getEntityManager()->getRepository(XList::class)->findOneBy(['position' => $requestCard->getPosition()]);
+            if (!$card) {
+                throw new ValidationException("Position given in json is invalid", Response::HTTP_BAD_REQUEST);
             }
-            $id++;
+
+            $card->setName($requestCard->getName());
+            $this->getEntityManager()->persist($card);
         }
 
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-
-        return $cards;
+        $this->getEntityManager()->flush();
     }
 
     public function countCards()

@@ -12,10 +12,12 @@ class ListFixture extends Fixture
     {
         $list = new XList();
         $list->setName('Toto');
+        $list->setPosition(1);
         $manager->persist($list);
 
         $list2 = new XList();
         $list2->setName('Tata');
+        $list2->setPosition(2);
         $manager->persist($list2);
 
         $manager->flush();

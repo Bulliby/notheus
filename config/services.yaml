@@ -15,7 +15,3 @@ services:
       - '../src/DependencyInjection/'
       - '../src/Entity/'
       - '../src/Kernel.php'
-
-  App\EventListener\ExceptionListener:
-    $errorMessage: '%api_constants.messages.error%'
-    $environment: '%env(APP_ENV)%'
