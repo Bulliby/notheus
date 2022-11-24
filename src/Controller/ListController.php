@@ -31,8 +31,6 @@ class ListController extends AbstractController
     public function index(): Response
     {
         return $this->json([
-            // We send the MaxID to avoid the client to wait the object
-            // persistence to continue with it's new ID.
             'lists' => $this->listRepository->findAll()
         ], Response::HTTP_OK);
     }

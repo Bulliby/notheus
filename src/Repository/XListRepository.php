@@ -25,6 +25,7 @@ class XListRepository extends ServiceEntityRepository
     public function add(XList $entity): int
     {
         $entity->setPosition($this->getLastPosition());
+        $entity->setName(substr(htmlspecialchars($entity->getName()), 0, 8));
         $this->getEntityManager()->persist($entity);
         $this->getEntityManager()->flush();
 
