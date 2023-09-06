@@ -46,13 +46,13 @@ class ListController extends AbstractController
 
         $errors = $validator->validate($card);
 
-		if (count($errors) > 0) {
+        if (count($errors) > 0) {
             throw new BadRequestHttpException($errors);
-    	}
+        }
 
         $listId = $this->listRepository->add($card);
 
-		return $this->json($listId, Response::HTTP_CREATED);
+        return $this->json($listId, Response::HTTP_CREATED);
     }
 
     #[Route('/positions', name: 'app_list_positions', methods: ['POST'])]
@@ -63,15 +63,15 @@ class ListController extends AbstractController
     )
     {
         $cards = $s->deserialize($request->getContent(), XList::class.'[]', 'json');
-   
+
         $errors = $validator->validate($cards);
 
-		if (count($errors) > 0) {
+        if (count($errors) > 0) {
             throw new BadRequestHttpException($errors);
-    	}
+        }
 
         $this->listRepository->positions($cards);
 
-		return $this->json("OK", Response::HTTP_CREATED);
+        return $this->json("OK", Response::HTTP_CREATED);
     }
 }

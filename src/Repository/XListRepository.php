@@ -35,9 +35,9 @@ class XListRepository extends ServiceEntityRepository
     private function getLastPosition()
     {
         $query = $this->createQueryBuilder('x')
-                      ->select('x.position')
-                      ->orderBy('x.position', 'DESC')
-                      ->getQuery();
+        ->select('x.position')
+        ->orderBy('x.position', 'DESC')
+        ->getQuery();
 
         $pos = $query->setMaxResults(1)->getOneOrNullResult();
 
